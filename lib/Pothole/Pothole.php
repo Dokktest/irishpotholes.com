@@ -4,10 +4,10 @@ namespace Pothole;
 
 class Pothole extends \Base\BaseClass
 {
-    protected $_table = 'pothole';
-    protected $_index = 'pothole_id';
+    protected $table = 'pothole';
+    protected $index = 'pothole_id';
 
-    protected $_publicColumns = array('pothole_id',
+    protected $publicColumns = array('pothole_id',
 					'nickname',
 					'description',
 					'rating',
@@ -15,6 +15,8 @@ class Pothole extends \Base\BaseClass
 					'lng',
 					'report_date',
 					);
+
+    protected $images = false;
 
     public function create($details)
     {
@@ -125,9 +127,14 @@ class Pothole extends \Base\BaseClass
 
     public function getImages()
     {
-        $mapper = new ImageMapper();
+	if (!$this->images)
+	{
+        	$mapper = new ImageMapper();
 
-        return $mapper->getByPothole($this->get('pothole_id'));
+        	$this->images = $mapper->getByPothole($this->get('pothole_id'));
+	}
+
+	return $this->images;
     }
 
     public function getFirstImage()
@@ -135,5 +142,20 @@ class Pothole extends \Base\BaseClass
         $mapper = new ImageMapper();
 
         return $mapper->getByPothole($this->get('pothole_id'), true);
+    }
+
+    public function getPublic()
+    {
+	$return = parent::getPublic();
+
+	$this->getImages();
+
+	$return['images'] = array();
+	foreach ($this->images as $image)
+	{
+		$return['images'][] = $image->getPublic();
+	}
+
+	return $return;
     }
 }
