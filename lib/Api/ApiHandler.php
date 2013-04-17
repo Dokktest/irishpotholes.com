@@ -104,12 +104,15 @@ class ApiHandler
             $this->handlePotholePost();
             break;
         default:
-            $this->result = array('success'=>false,'error'=>'Unknown Action');
+            $this->success =  false;
+            $this->status = 404;
+            $this->result = array('error'=>'Unknown Action');
             $this->renderJson();
         }
     }
 
-    private function handlePotholePost() {
+    private function handlePotholePost() 
+    {
         $fileUploader = new \Fine\FileUploader(array('jpg','png','jpeg'),10*1024*1024);
         try {
             $response = $fileUploader->handleUpload(UPLOAD_DIR);
@@ -118,7 +121,9 @@ class ApiHandler
 
             $this->post['images'] = array($filename);
         } catch (\Pothole\Exception $e) {
-            $this->result = array('success'=>false,'error'=>$e->getMessage());
+            $this->result = array('error'=>$e->getMessage());
+            $this->success = false;
+            $this->status = 500;
             $this->renderJson();
         }
 
@@ -128,7 +133,9 @@ class ApiHandler
             $potholeId = $pothole->create($this->post);
             $this->result = array('success'=>true,'pothole_id'=>$potholeId);
         } catch (\Pothole\Exception $e) {
-            $this->result = array('success'=>false,'error'=>$e->getMessage());
+            $this->success = false;
+            $this->status = 500;
+            $this->result = array('error'=>$e->getMessage());
 
             //Delete the uploaded image from table.
             $imageMapper = new \Pothole\ImageMapper();

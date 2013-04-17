@@ -92,15 +92,7 @@ class BaseClass
 
 	    $query = $mysql->deleteQuery($this->_table, $this->_index, $this->_columns[$this->_index]);
 
-        $result = $mysql->execute($query);
-
-        if($result !== false) {
-             //Delete from file system
-            $mask = UPLOAD_DIR.DIRECTORY_SEPARATOR."*".$filename;
-            array_map( "unlink", glob( $mask ) );
-        }
-
-        return $result;
+        return $mysql->execute($query);
     }
 
     public function get($column)
